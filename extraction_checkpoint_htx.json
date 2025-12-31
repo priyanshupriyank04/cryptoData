@@ -1,0 +1,198 @@
+{
+  "last_updated": "2025-12-31T10:06:56.667748",
+  "start_time": "2025-12-29T18:44:48.379748",
+  "exchanges": {
+    "htx": {
+      "spot_ZIL/USDT_1d": {
+        "last_timestamp": "2025-12-28T21:30:00"
+      },
+      "last_updated": "2025-12-31T10:06:56.667748",
+      "completed_instruments": [
+        "spot_ZIL/USDT_1d",
+        "spot_ZIL/USDT_1h",
+        "spot_ZIL/USDT_1m",
+        "spot_ZIL/USDT_4h",
+        "spot_RLC/USDT_1d",
+        "spot_RLC/USDT_4h",
+        "spot_KAVA/USDT_1d",
+        "spot_KAVA/USDT_1h",
+        "spot_KAVA/USDT_1m",
+        "spot_KAVA/USDT_4h",
+        "spot_HUNT/USDT_1d",
+        "spot_RACA/USDT_1d",
+        "spot_DCR/USDT_1d",
+        "spot_WAXL/USDT_1d",
+        "spot_FCT2/USDT_1d",
+        "spot_REEF/USDT_1d",
+        "spot_REEF/USDT_1h",
+        "spot_REEF/USDT_4h",
+        "spot_ACS/USDT_1d",
+        "spot_AMP/USDT_1d",
+        "spot_CVC/USDT_1d",
+        "spot_CVC/USDT_1h",
+        "spot_CVC/USDT_1m",
+        "spot_CVC/USDT_4h",
+        "spot_SOLO/USDT_1d",
+        "spot_TRB/USDT_1d",
+        "spot_TRB/USDT_1h",
+        "spot_TRB/USDT_1m",
+        "spot_TRB/USDT_4h",
+        "spot_POLYX/USDT_1d",
+        "spot_DIA/USDT_1d",
+        "spot_OG/USDT_1d",
+        "spot_SWAP/USDT_1d",
+        "spot_WELL/USDT_1d",
+        "spot_XEM/USDT_1d",
+        "spot_XEM/USDT_1h",
+        "spot_XEM/USDT_1m",
+        "spot_XEM/USDT_4h",
+        "spot_EGLD/USDT_1d",
+        "spot_ETH/USDT_1d",
+        "spot_ETH/USDT_1h",
+        "spot_ETH/USDT_1m",
+        "spot_ETH/USDT_4h",
+        "spot_KRRX/USDT_1d",
+        "spot_PHA/USDT_1d",
+        "spot_PHA/USDT_1h"
+      ],
+      "spot_ZIL/USDT_1h": {
+        "last_timestamp": "2025-12-29T18:30:00"
+      },
+      "spot_ZIL/USDT_1m": {
+        "last_timestamp": "2025-12-29T08:22:00"
+      },
+      "spot_ZIL/USDT_4h": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_RLC/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_RLC/USDT_4h": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_KAVA/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_KAVA/USDT_1h": {
+        "last_timestamp": "2025-12-29T23:30:00"
+      },
+      "spot_KAVA/USDT_1m": {
+        "last_timestamp": "2025-12-29T13:48:00"
+      },
+      "spot_KAVA/USDT_4h": {
+        "last_timestamp": "2025-12-30T01:30:00"
+      },
+      "spot_HUNT/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_RACA/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_DCR/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_WAXL/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_FCT2/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_REEF/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_REEF/USDT_1h": {
+        "last_timestamp": "2025-12-30T05:30:00"
+      },
+      "spot_REEF/USDT_4h": {
+        "last_timestamp": "2025-12-30T05:30:00"
+      },
+      "spot_ACS/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_AMP/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_CVC/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_CVC/USDT_1h": {
+        "last_timestamp": "2025-12-30T05:30:00"
+      },
+      "spot_CVC/USDT_1m": {
+        "last_timestamp": "2025-12-29T02:36:00"
+      },
+      "spot_CVC/USDT_4h": {
+        "last_timestamp": "2025-12-30T09:30:00"
+      },
+      "spot_SOLO/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_TRB/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_TRB/USDT_1h": {
+        "last_timestamp": "2025-12-30T10:30:00"
+      },
+      "spot_TRB/USDT_1m": {
+        "last_timestamp": "2025-12-29T08:04:00"
+      },
+      "spot_TRB/USDT_4h": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_POLYX/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_DIA/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_OG/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_SWAP/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_WELL/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_XEM/USDT_1d": {
+        "last_timestamp": "2025-12-29T21:30:00"
+      },
+      "spot_XEM/USDT_1h": {
+        "last_timestamp": "2025-12-30T17:30:00"
+      },
+      "spot_XEM/USDT_1m": {
+        "last_timestamp": "2025-12-29T14:28:00"
+      },
+      "spot_XEM/USDT_4h": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_EGLD/USDT_1d": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_ETH/USDT_1d": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_ETH/USDT_1h": {
+        "last_timestamp": "2025-12-30T22:30:00"
+      },
+      "spot_ETH/USDT_1m": {
+        "last_timestamp": "2025-12-29T03:41:00"
+      },
+      "spot_ETH/USDT_4h": {
+        "last_timestamp": "2025-12-31T01:30:00"
+      },
+      "spot_KRRX/USDT_1d": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_PHA/USDT_1d": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_PHA/USDT_1h": {
+        "last_timestamp": "2025-12-31T04:30:00"
+      },
+      "spot_PHA/USDT_1m": {
+        "last_timestamp": "2025-01-09T14:05:00"
+      }
+    }
+  }
+}

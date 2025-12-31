@@ -1,0 +1,20 @@
+{
+  "last_updated": "2025-12-31T10:07:12.853746",
+  "start_time": "2025-12-31T13:25:01.072836",
+  "exchanges": {
+    "binance": {
+      "completed_instruments": [
+        "spot_ETH/BTC_1d",
+        "spot_ETH/BTC_1h",
+        "spot_ETH/BTC_1m"
+      ],
+      "last_updated": "2025-12-31T10:07:12.853746",
+      "spot_ETH/BTC_1m": {
+        "last_timestamp": "2025-12-29T03:07:00"
+      },
+      "spot_ETH/BTC_1s": {
+        "last_timestamp": "2021-07-13T12:53:11"
+      }
+    }
+  }
+}

@@ -1,0 +1,295 @@
+{
+  "last_updated": "2025-12-31T10:06:59.051013",
+  "start_time": "2025-12-29T18:42:26.853296",
+  "exchanges": {
+    "deribit": {
+      "completed_instruments": [
+        "spot_BNB/USDC_1d",
+        "spot_BNB/USDC_1h",
+        "spot_BNB/USDC_1m",
+        "spot_BNB/USDC_3m",
+        "spot_BTC/USDC_1d",
+        "spot_BTC/USDC_1h",
+        "spot_BTC/USDC_1m",
+        "spot_BTC/USDC_3m",
+        "spot_BTC/USDE_1d",
+        "spot_BTC/USDE_1h",
+        "spot_BTC/USDE_1m",
+        "spot_BTC/USDE_3m",
+        "spot_BTC/USDT_1d",
+        "spot_BTC/USDT_1h",
+        "spot_BTC/USDT_1m",
+        "spot_BTC/USDT_3m",
+        "spot_BUIDL/USDC_1d",
+        "spot_BUIDL/USDC_1h",
+        "spot_BUIDL/USDC_1m",
+        "spot_BUIDL/USDC_3m",
+        "spot_ETH/BTC_1d",
+        "spot_ETH/BTC_1h",
+        "spot_ETH/BTC_1m",
+        "spot_ETH/BTC_3m",
+        "spot_ETH/USDC_1d",
+        "spot_ETH/USDC_1h",
+        "spot_ETH/USDC_1m",
+        "spot_ETH/USDC_3m",
+        "spot_ETH/USDE_1d",
+        "spot_ETH/USDE_1h",
+        "spot_ETH/USDE_1m",
+        "spot_ETH/USDE_3m",
+        "spot_ETH/USDT_1d",
+        "spot_ETH/USDT_1h",
+        "spot_ETH/USDT_1m",
+        "spot_ETH/USDT_3m",
+        "spot_PAXG/USDC_1d",
+        "spot_PAXG/USDC_1h",
+        "spot_PAXG/USDC_1m",
+        "spot_PAXG/USDC_3m",
+        "spot_SOL/USDC_1d",
+        "spot_SOL/USDC_1h",
+        "spot_SOL/USDC_1m",
+        "spot_SOL/USDC_3m",
+        "spot_STETH/ETH_1d",
+        "spot_STETH/ETH_1h",
+        "spot_STETH/ETH_1m",
+        "spot_STETH/ETH_3m",
+        "spot_STETH/USDC_1d",
+        "spot_STETH/USDC_1h",
+        "spot_STETH/USDC_1m",
+        "spot_STETH/USDC_3m",
+        "spot_USDC/USDT_1d",
+        "spot_USDC/USDT_1h",
+        "spot_USDC/USDT_1m",
+        "spot_USDC/USDT_3m",
+        "spot_USDE/USDC_1d",
+        "spot_USDE/USDC_1h",
+        "spot_USDE/USDC_1m",
+        "spot_USDE/USDC_3m",
+        "spot_USDE/USDT_1d",
+        "spot_USDE/USDT_1h",
+        "spot_USDE/USDT_1m",
+        "spot_USDE/USDT_3m",
+        "spot_USYC/USDC_1d",
+        "spot_USYC/USDC_1h",
+        "spot_USYC/USDC_1m",
+        "spot_USYC/USDC_3m",
+        "spot_XRP/USDC_1d",
+        "spot_XRP/USDC_1h",
+        "spot_XRP/USDC_1m"
+      ],
+      "last_updated": "2025-12-31T10:06:59.051013",
+      "spot_BNB/USDC_1h": {
+        "last_timestamp": "2025-12-29T17:30:00"
+      },
+      "spot_BNB/USDC_1m": {
+        "last_timestamp": "2025-12-29T19:48:00"
+      },
+      "spot_BNB/USDC_3m": {
+        "last_timestamp": "2025-12-29T20:09:00"
+      },
+      "spot_BTC/USDC_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_BTC/USDC_1h": {
+        "last_timestamp": "2025-12-29T19:30:00"
+      },
+      "spot_BTC/USDC_1m": {
+        "last_timestamp": "2025-12-29T20:05:00"
+      },
+      "spot_BTC/USDC_3m": {
+        "last_timestamp": "2025-12-29T23:39:00"
+      },
+      "spot_BTC/USDE_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_BTC/USDE_1h": {
+        "last_timestamp": "2025-12-29T23:30:00"
+      },
+      "spot_BTC/USDE_1m": {
+        "last_timestamp": "2025-12-29T16:10:00"
+      },
+      "spot_BTC/USDE_3m": {
+        "last_timestamp": "2025-12-30T00:42:00"
+      },
+      "spot_BTC/USDT_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_BTC/USDT_1h": {
+        "last_timestamp": "2025-12-30T00:30:00"
+      },
+      "spot_BTC/USDT_1m": {
+        "last_timestamp": "2025-12-29T21:02:00"
+      },
+      "spot_BTC/USDT_3m": {
+        "last_timestamp": "2025-12-30T03:24:00"
+      },
+      "spot_BUIDL/USDC_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_BUIDL/USDC_1h": {
+        "last_timestamp": "2025-12-30T02:30:00"
+      },
+      "spot_BUIDL/USDC_1m": {
+        "last_timestamp": "2025-12-30T02:43:00"
+      },
+      "spot_BUIDL/USDC_3m": {
+        "last_timestamp": "2025-12-30T04:06:00"
+      },
+      "spot_ETH/BTC_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_ETH/BTC_1h": {
+        "last_timestamp": "2025-12-30T03:30:00"
+      },
+      "spot_ETH/BTC_1m": {
+        "last_timestamp": "2025-12-29T20:05:00"
+      },
+      "spot_ETH/BTC_3m": {
+        "last_timestamp": "2025-12-30T07:36:00"
+      },
+      "spot_ETH/USDC_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_ETH/USDC_1h": {
+        "last_timestamp": "2025-12-30T07:30:00"
+      },
+      "spot_ETH/USDC_1m": {
+        "last_timestamp": "2025-12-29T20:05:00"
+      },
+      "spot_ETH/USDC_3m": {
+        "last_timestamp": "2025-12-30T11:21:00"
+      },
+      "spot_ETH/USDE_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_ETH/USDE_1h": {
+        "last_timestamp": "2025-12-30T10:30:00"
+      },
+      "spot_ETH/USDE_1m": {
+        "last_timestamp": "2025-12-29T16:10:00"
+      },
+      "spot_ETH/USDE_3m": {
+        "last_timestamp": "2025-12-30T12:42:00"
+      },
+      "spot_ETH/USDT_1d": {
+        "last_timestamp": "2025-12-29T13:30:00"
+      },
+      "spot_ETH/USDT_1h": {
+        "last_timestamp": "2025-12-30T12:30:00"
+      },
+      "spot_ETH/USDT_1m": {
+        "last_timestamp": "2025-12-29T21:03:00"
+      },
+      "spot_ETH/USDT_3m": {
+        "last_timestamp": "2025-12-30T15:54:00"
+      },
+      "spot_PAXG/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_PAXG/USDC_1h": {
+        "last_timestamp": "2025-12-30T15:30:00"
+      },
+      "spot_PAXG/USDC_1m": {
+        "last_timestamp": "2025-12-29T02:12:00"
+      },
+      "spot_PAXG/USDC_3m": {
+        "last_timestamp": "2025-12-29T02:12:00"
+      },
+      "spot_SOL/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_SOL/USDC_1h": {
+        "last_timestamp": "2025-12-30T17:30:00"
+      },
+      "spot_SOL/USDC_1m": {
+        "last_timestamp": "2025-12-29T05:28:00"
+      },
+      "spot_SOL/USDC_3m": {
+        "last_timestamp": "2025-12-29T05:30:00"
+      },
+      "spot_STETH/ETH_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_STETH/ETH_1h": {
+        "last_timestamp": "2025-12-30T19:30:00"
+      },
+      "spot_STETH/ETH_1m": {
+        "last_timestamp": "2025-12-29T13:03:00"
+      },
+      "spot_STETH/ETH_3m": {
+        "last_timestamp": "2025-12-30T22:18:00"
+      },
+      "spot_STETH/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_STETH/USDC_1h": {
+        "last_timestamp": "2025-12-30T21:30:00"
+      },
+      "spot_STETH/USDC_1m": {
+        "last_timestamp": "2025-12-29T13:00:00"
+      },
+      "spot_STETH/USDC_3m": {
+        "last_timestamp": "2025-12-30T22:21:00"
+      },
+      "spot_USDC/USDT_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_USDC/USDT_1h": {
+        "last_timestamp": "2025-12-31T00:30:00"
+      },
+      "spot_USDC/USDT_1m": {
+        "last_timestamp": "2025-12-29T21:03:00"
+      },
+      "spot_USDC/USDT_3m": {
+        "last_timestamp": "2025-12-31T03:24:00"
+      },
+      "spot_USDE/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_USDE/USDC_1h": {
+        "last_timestamp": "2025-12-31T02:30:00"
+      },
+      "spot_USDE/USDC_1m": {
+        "last_timestamp": "2025-12-29T16:10:00"
+      },
+      "spot_USDE/USDC_3m": {
+        "last_timestamp": "2025-12-31T04:33:00"
+      },
+      "spot_USDE/USDT_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_USDE/USDT_1h": {
+        "last_timestamp": "2025-12-31T04:30:00"
+      },
+      "spot_USDE/USDT_1m": {
+        "last_timestamp": "2025-12-29T16:11:00"
+      },
+      "spot_USDE/USDT_3m": {
+        "last_timestamp": "2025-12-31T05:48:00"
+      },
+      "spot_USYC/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_USYC/USDC_1h": {
+        "last_timestamp": "2025-12-31T05:30:00"
+      },
+      "spot_USYC/USDC_1m": {
+        "last_timestamp": "2025-12-29T05:10:00"
+      },
+      "spot_USYC/USDC_3m": {
+        "last_timestamp": "2025-12-29T05:12:00"
+      },
+      "spot_XRP/USDC_1d": {
+        "last_timestamp": "2025-12-30T13:30:00"
+      },
+      "spot_XRP/USDC_1h": {
+        "last_timestamp": "2025-12-31T07:30:00"
+      },
+      "spot_XRP/USDC_1m": {
+        "last_timestamp": "2025-12-29T05:28:00"
+      },
+      "spot_XRP/USDC_3m": {
+        "last_timestamp": "2025-07-15T15:30:00"
+      }
+    }
+  }
+}
