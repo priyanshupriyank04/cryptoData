@@ -27,10 +27,10 @@ EXCHANGE_DATABASES = [ex.upper() for ex in SELECTED_EXCHANGES]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Progress checkpoint file - PHEMEX SPECIFIC (separate from main checkpoint)
-CHECKPOINT_FILE = os.path.join(PROJECT_ROOT, 'crypto_data', 'extraction_checkpoint_phemex.json')
+CHECKPOINT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extraction_checkpoint_phemex.json')
 
 # Database credentials file
-CREDENTIALS_FILE = os.path.join(PROJECT_ROOT, 'credentials.txt')
+CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'credentials.txt')
 
 
 def read_credentials(file_path=CREDENTIALS_FILE):
@@ -628,15 +628,18 @@ def fetch_all_public_data(exchange, symbol, instrument_type, market_info, connec
         
         print(f"      Fetching OHLCV from {datetime.fromtimestamp(since/1000)}...", end=' ')
         
-        # Optimize batch size - use larger batches but stay within safe limits
-        # Most exchanges support 1000-5000, but we'll use 2000 for balance of speed and safety
-        optimized_limit = min(limit, 2000)  # Safe batch size that's still 2x faster
+        # Phemex has a maximum limit of 1000, use smaller batches for safety
+        # Start with 1000, will reduce if we get INVALID_PARAM_VALUE errors
+        optimized_limit = min(limit, 1000)  # Phemex max is typically 1000
+        retry_limit = optimized_limit
+        invalid_param_retries = 0
+        max_invalid_retries = 3
         
         # Fetch and insert in batches
         while True:
             try:
-                # Fetch one batch with optimized limit
-                ohlcv_batch = exchange.fetch_ohlcv(symbol, timeframe, since=current_since, limit=optimized_limit)
+                # Fetch one batch with current limit (may be reduced on retry)
+                ohlcv_batch = exchange.fetch_ohlcv(symbol, timeframe, since=current_since, limit=retry_limit)
                 
                 if not ohlcv_batch or len(ohlcv_batch) == 0:
                     break
@@ -687,8 +690,8 @@ def fetch_all_public_data(exchange, symbol, instrument_type, market_info, connec
                     print(f"      ✓ Reached cutoff date (Dec 28, 2025), stopping fetch...")
                     break
                 
-                # Optimized rate limiting - use exchange rate limit as delay
-                sleep_time = rate_limit_seconds
+                # Optimized rate limiting - use exchange rate limit as delay with 25% buffer
+                sleep_time = rate_limit_seconds * 1.25
                 time.sleep(sleep_time)
                 
             except ccxt.RateLimitExceeded:
@@ -716,12 +719,37 @@ def fetch_all_public_data(exchange, symbol, instrument_type, market_info, connec
                     time.sleep(rate_limit_seconds * 10)
                     print("resuming...", end=' ')
                     continue
+                # Handle INVALID_PARAM_VALUE - try with smaller limit or without since parameter
+                elif 'invalid' in error_msg.lower() and 'param' in error_msg.lower():
+                    invalid_param_retries += 1
+                    if invalid_param_retries <= max_invalid_retries:
+                        # Try with smaller limit
+                        retry_limit = max(100, retry_limit // 2)
+                        print(f"      ⚠ Invalid parameter (attempt {invalid_param_retries}/{max_invalid_retries}), trying with limit={retry_limit}...", end=' ')
+                        time.sleep(rate_limit_seconds * 1.25)
+                        continue
+                    elif invalid_param_retries == max_invalid_retries + 1:
+                        # Last attempt: try without since parameter to get latest data
+                        print(f"      ⚠ Trying without 'since' parameter to get latest available data...", end=' ')
+                        try:
+                            ohlcv_batch = exchange.fetch_ohlcv(symbol, timeframe, limit=min(100, retry_limit))
+                            if ohlcv_batch and len(ohlcv_batch) > 0:
+                                # Update current_since to the first candle's timestamp
+                                current_since = ohlcv_batch[0][0]
+                                invalid_param_retries = 0  # Reset counter on success
+                                retry_limit = optimized_limit  # Reset limit
+                                continue
+                        except:
+                            pass
+                    # If all retries failed, skip this instrument
+                    print(f"      ✗ Invalid parameter error persists: {error_msg[:100]}")
+                    break
                 # Skip non-critical errors and continue
-                elif 'not found' in error_msg.lower() or 'invalid' in error_msg.lower():
-                    print(f"⚠ {error_msg[:50]}")
+                elif 'not found' in error_msg.lower():
+                    print(f"      ⚠ {error_msg[:100]}")
                     break
                 else:
-                    print(f"⚠ {error_msg[:50]}, retrying...", end=' ')
+                    print(f"      ⚠ {error_msg[:100]}, retrying...", end=' ')
                     time.sleep(rate_limit_seconds * 2)
                     continue
         
@@ -987,15 +1015,15 @@ def process_exchange(exchange_id, creds, checkpoint):
                         else:
                             print(f"    ⚠ No new data")
                         
-                        # Minimal rate limiting between timeframes (based on exchange rate limit)
-                        time.sleep(rate_limit_seconds)
+                        # Minimal rate limiting between timeframes (based on exchange rate limit with 25% buffer)
+                        time.sleep(rate_limit_seconds * 1.25)
                         
                     except Exception as e:
                         print(f"    ✗ Error: {e}")
                         continue
                 
-                # Minimal rate limiting between instruments (based on exchange rate limit)
-                time.sleep(rate_limit_seconds)
+                # Minimal rate limiting between instruments (based on exchange rate limit with 25% buffer)
+                time.sleep(rate_limit_seconds * 1.25)
         
         # Mark exchange as completed
         if exchange_id not in checkpoint.get('completed_exchanges', []):

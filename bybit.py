@@ -27,10 +27,10 @@ EXCHANGE_DATABASES = [ex.upper() for ex in SELECTED_EXCHANGES]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Progress checkpoint file - BYBIT SPECIFIC (separate from main checkpoint)
-CHECKPOINT_FILE = os.path.join(PROJECT_ROOT, 'crypto_data', 'extraction_checkpoint_bybit.json')
+CHECKPOINT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extraction_checkpoint_bybit.json')
 
 # Database credentials file
-CREDENTIALS_FILE = os.path.join(PROJECT_ROOT, 'credentials.txt')
+CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'credentials.txt')
 
 
 def read_credentials(file_path=CREDENTIALS_FILE):
@@ -825,8 +825,8 @@ def fetch_all_public_data(exchange, symbol, instrument_type, market_info, connec
                     print(f"      ✓ Reached cutoff date (Dec 28, 2025), stopping fetch...")
                     break
                 
-                # Optimized rate limiting - use exchange rate limit as delay
-                sleep_time = rate_limit_seconds
+                # Optimized rate limiting - use exchange rate limit as delay with 25% buffer
+                sleep_time = rate_limit_seconds * 1.25
                 time.sleep(sleep_time)
                 
             except ccxt.RateLimitExceeded:
@@ -1162,15 +1162,15 @@ def process_exchange(exchange_id, creds, checkpoint):
                         else:
                             print(f"    ⚠ No new data")
                         
-                        # Minimal rate limiting between timeframes (based on exchange rate limit)
-                        time.sleep(rate_limit_seconds)
+                        # Minimal rate limiting between timeframes (based on exchange rate limit with 25% buffer)
+                        time.sleep(rate_limit_seconds * 1.25)
                         
                     except Exception as e:
                         print(f"    ✗ Error: {e}")
                         continue
                 
-                # Minimal rate limiting between instruments (based on exchange rate limit)
-                time.sleep(rate_limit_seconds)
+                # Minimal rate limiting between instruments (based on exchange rate limit with 25% buffer)
+                time.sleep(rate_limit_seconds * 1.25)
         
         # Mark exchange as completed
         if exchange_id not in checkpoint.get('completed_exchanges', []):

@@ -27,10 +27,31 @@ EXCHANGE_DATABASES = [ex.upper() for ex in SELECTED_EXCHANGES]
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Progress checkpoint file - BINANCE SPECIFIC (separate from main checkpoint)
-CHECKPOINT_FILE = os.path.join(PROJECT_ROOT, 'crypto_data', 'extraction_checkpoint_binance.json')
+CHECKPOINT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extraction_checkpoint_binance.json')
 
 # Database credentials file
-CREDENTIALS_FILE = os.path.join(PROJECT_ROOT, 'credentials.txt')
+CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'credentials.txt')
+
+# Volume file with top coins
+VOLUME_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'volume.txt')
+
+
+def load_volume_coins(file_path=VOLUME_FILE):
+    """Load top volume coins from volume.txt file. Returns set of symbols."""
+    volume_coins = set()
+    try:
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                for line in f:
+                    symbol = line.strip()
+                    if symbol:
+                        volume_coins.add(symbol)
+            print(f"✓ Loaded {len(volume_coins)} symbols from volume.txt")
+        else:
+            print(f"⚠ volume.txt not found, will process all symbols for 1s timeframe")
+    except Exception as e:
+        print(f"⚠ Error reading volume.txt: {e}, will process all symbols for 1s timeframe")
+    return volume_coins
 
 
 def read_credentials(file_path=CREDENTIALS_FILE):
@@ -98,53 +119,110 @@ def ensure_connection_alive(connection, creds, db_name):
         return None, False
 
 
-def get_database_connection(creds, database_name=None):
+def get_database_connection(creds, database_name=None, retry_count=0, max_retries=3):
     """Get MySQL database connection. Creates database if it doesn't exist."""
     try:
-        # Connection settings with timeout and keepalive
+        # Connection settings with increased timeout
         connection_params = {
             'host': creds['host'],
             'port': creds['port'],
             'user': creds['user'],
             'password': creds['password'],
             'autocommit': False,
-            'connect_timeout': 10,
-            'connection_timeout': 10,
+            'connect_timeout': 30,  # Increased from 10 to 30 seconds
+            'connection_timeout': 30,  # Increased from 10 to 30 seconds
             'init_command': "SET SESSION wait_timeout=28800, interactive_timeout=28800"
         }
         
         if not database_name:
             # If no database name provided, connect without database
+            print(f"[DEBUG] Connecting to MySQL (no database) at {creds['host']}:{creds['port']}...")
+            conn_start = time.time()
             connection = mysql.connector.connect(**connection_params)
+            conn_elapsed = time.time() - conn_start
+            print(f"[DEBUG] MySQL connection (no DB) established in {conn_elapsed:.2f} seconds")
             return connection
         
-        # First try to connect to the database
+        # First try to connect to the database with retry logic
         try:
             connection_params['database'] = database_name
+            print(f"[DEBUG] Attempting to connect to database '{database_name}' at {creds['host']}:{creds['port']} (attempt {retry_count + 1}/{max_retries})...")
+            conn_start = time.time()
             connection = mysql.connector.connect(**connection_params)
+            conn_elapsed = time.time() - conn_start
+            print(f"[DEBUG] MySQL connection to '{database_name}' established in {conn_elapsed:.2f} seconds")
             return connection
         except Error as e:
+            # Handle connection timeout errors with retry
+            error_msg = str(e).lower()
+            if ('timeout' in error_msg or '3024' in str(e)) and retry_count < max_retries:
+                wait_time = (retry_count + 1) * 5  # Exponential backoff: 5s, 10s, 15s
+                print(f"[DEBUG] Connection timeout detected (attempt {retry_count + 1}/{max_retries}), waiting {wait_time} seconds before retry...")
+                print(f"[DEBUG] Error details: {type(e).__name__}: {str(e)[:200]}")
+                time.sleep(wait_time)
+                return get_database_connection(creds, database_name, retry_count + 1, max_retries)
+            
             # If database doesn't exist, create it
             if e.errno == 1049:  # Unknown database
+                print(f"[DEBUG] Database '{database_name}' doesn't exist, creating it...")
+                temp_start = time.time()
                 temp_conn = mysql.connector.connect(
                     host=creds['host'],
                     port=creds['port'],
                     user=creds['user'],
-                    password=creds['password']
+                    password=creds['password'],
+                    connect_timeout=30,  # Increased timeout
+                    connection_timeout=30  # Increased timeout
                 )
+                temp_elapsed = time.time() - temp_start
+                print(f"[DEBUG] Temporary connection for DB creation established in {temp_elapsed:.2f} seconds")
+                
+                print(f"[DEBUG] Creating cursor...")
+                cursor_start = time.time()
                 cursor = temp_conn.cursor()
-                cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{database_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-                temp_conn.commit()
-                cursor.close()
-                temp_conn.close()
+                cursor_elapsed = time.time() - cursor_start
+                print(f"[DEBUG] Cursor created in {cursor_elapsed:.4f} seconds")
+                
+                # Check if database exists first
+                print(f"[DEBUG] Checking if database '{database_name}' exists...")
+                check_start = time.time()
+                cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{database_name}'")
+                result = cursor.fetchone()
+                check_elapsed = time.time() - check_start
+                print(f"[DEBUG] Database existence check completed in {check_elapsed:.4f} seconds")
+                
+                if result:
+                    print(f"[DEBUG] Database '{database_name}' already exists, skipping creation")
+                    cursor.close()
+                    temp_conn.close()
+                else:
+                    print(f"[DEBUG] Database doesn't exist, creating it...")
+                    print(f"[DEBUG] About to execute CREATE DATABASE command at {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}...")
+                    create_start = time.time()
+                    cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{database_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+                    create_elapsed = time.time() - create_start
+                    print(f"[DEBUG] CREATE DATABASE execute() completed in {create_elapsed:.4f} seconds at {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+                    
+                    print(f"[DEBUG] About to commit CREATE DATABASE...")
+                    commit_start = time.time()
+                    temp_conn.commit()
+                    commit_elapsed = time.time() - commit_start
+                    print(f"[DEBUG] CREATE DATABASE commit completed in {commit_elapsed:.4f} seconds")
+                    cursor.close()
+                    temp_conn.close()
                 
                 # Now connect to the created database
                 connection_params['database'] = database_name
+                print(f"[DEBUG] Connecting to newly created database '{database_name}'...")
+                final_start = time.time()
                 connection = mysql.connector.connect(**connection_params)
+                final_elapsed = time.time() - final_start
+                print(f"[DEBUG] Connection to new database established in {final_elapsed:.2f} seconds")
                 return connection
             else:
                 raise
     except Error as e:
+        print(f"[DEBUG] MySQL Error in get_database_connection: {type(e).__name__}: {str(e)[:200]}")
         print(f"Error connecting to MySQL: {e}")
         raise
 
@@ -152,20 +230,63 @@ def get_database_connection(creds, database_name=None):
 def create_database_if_not_exists(creds, db_name):
     """Create database if it doesn't exist."""
     try:
+        print(f"[DEBUG] create_database_if_not_exists: Getting connection without database...")
         # Connect without database to create it
         connection = get_database_connection(creds, database_name=None)
+        print(f"[DEBUG] create_database_if_not_exists: Got connection, creating cursor...")
+        cursor_start = time.time()
         cursor = connection.cursor()
+        cursor_elapsed = time.time() - cursor_start
+        print(f"[DEBUG] create_database_if_not_exists: Cursor created in {cursor_elapsed:.4f} seconds")
         
+        # First check if database exists
+        print(f"[DEBUG] create_database_if_not_exists: Checking if database '{db_name}' exists...")
+        check_start = time.time()
+        cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{db_name}'")
+        result = cursor.fetchone()
+        check_elapsed = time.time() - check_start
+        print(f"[DEBUG] create_database_if_not_exists: Database existence check completed in {check_elapsed:.4f} seconds")
+        
+        if result:
+            print(f"[DEBUG] create_database_if_not_exists: Database '{db_name}' already exists, skipping creation")
+            cursor.close()
+            connection.close()
+            print(f"✓ Database '{db_name}' ready (already exists)")
+            return True
+        
+        print(f"[DEBUG] create_database_if_not_exists: Database doesn't exist, creating it...")
+        print(f"[DEBUG] create_database_if_not_exists: About to execute CREATE DATABASE command...")
+        print(f"[DEBUG] create_database_if_not_exists: SQL: CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+        create_start = time.time()
+        print(f"[DEBUG] create_database_if_not_exists: Executing cursor.execute() at {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}...")
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        connection.commit()
+        create_elapsed = time.time() - create_start
+        print(f"[DEBUG] create_database_if_not_exists: cursor.execute() completed in {create_elapsed:.4f} seconds at {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
         
+        print(f"[DEBUG] create_database_if_not_exists: About to commit...")
+        commit_start = time.time()
+        connection.commit()
+        commit_elapsed = time.time() - commit_start
+        print(f"[DEBUG] create_database_if_not_exists: Commit completed in {commit_elapsed:.4f} seconds")
+        
+        print(f"[DEBUG] create_database_if_not_exists: Closing cursor...")
         cursor.close()
+        print(f"[DEBUG] create_database_if_not_exists: Closing connection...")
         connection.close()
         
         print(f"✓ Database '{db_name}' ready")
         return True
     except Error as e:
+        print(f"[DEBUG] create_database_if_not_exists: MySQL Error occurred: {type(e).__name__}: {str(e)[:200]}")
         print(f"Error creating database: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+    except Exception as e:
+        print(f"[DEBUG] create_database_if_not_exists: Unexpected error occurred: {type(e).__name__}: {str(e)[:200]}")
+        print(f"Unexpected error creating database: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -825,8 +946,8 @@ def fetch_all_public_data(exchange, symbol, instrument_type, market_info, connec
                     print(f"      ✓ Reached cutoff date (Dec 28, 2025), stopping fetch...")
                     break
                 
-                # Optimized rate limiting - use exchange rate limit as delay
-                sleep_time = rate_limit_seconds
+                # Optimized rate limiting - use exchange rate limit as delay with 25% buffer
+                sleep_time = rate_limit_seconds * 1.25
                 time.sleep(sleep_time)
                 
             except ccxt.RateLimitExceeded:
@@ -923,72 +1044,122 @@ def process_exchange(exchange_id, creds, checkpoint):
     
     try:
         # Initialize exchange
+        print(f"[DEBUG] Initializing exchange '{exchange_id}'...")
         exchange_class = getattr(ccxt, exchange_id)
         exchange = exchange_class({
             'enableRateLimit': True,
+            'timeout': 30000,  # 30 second timeout for requests
             'options': {
                 'defaultType': 'spot'
             }
         })
         
         print(f"Exchange: {exchange.name}")
+        print(f"[DEBUG] Exchange initialized at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Load volume coins from volume.txt (for 1s timeframe filtering)
+        print(f"[DEBUG] Loading volume coins from volume.txt...")
+        volume_coins = load_volume_coins()
+        print(f"[DEBUG] Volume coins loaded: {len(volume_coins)} symbols")
         
         # Get exchange rate limit for calculating sleep times
         rate_limit_ms = exchange.rateLimit if exchange.rateLimit else 50
         rate_limit_seconds = rate_limit_ms / 1000
+        print(f"[DEBUG] Exchange rate limit: {rate_limit_ms}ms ({rate_limit_seconds}s)")
         
         # Load markets with retry for network issues
-        print("Loading markets...", end=' ')
+        print("Loading markets...", end=' ', flush=True)
+        print(f"\n[DEBUG] Starting market load at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         max_retries = 3
         retry_count = 0
         markets = None
+        start_time = None
         
         while retry_count < max_retries:
             try:
+                print(f"[DEBUG] Attempt {retry_count + 1}/{max_retries} - Calling exchange.load_markets()...", flush=True)
+                start_time = time.time()
                 markets = exchange.load_markets()
-                print(f"✓ ({len(markets)} markets)")
+                elapsed = time.time() - start_time
+                print(f"✓ ({len(markets)} markets) - took {elapsed:.2f} seconds")
                 break
             except (ccxt.NetworkError, ccxt.RequestTimeout, ccxt.ExchangeError) as e:
+                elapsed = time.time() - start_time if start_time else 0
                 retry_count += 1
+                print(f"\n[DEBUG] Network error after {elapsed:.2f} seconds: {type(e).__name__}: {str(e)[:100]}")
                 if retry_count < max_retries:
-                    print(f"⚠ Network error (retry {retry_count}/{max_retries})...", end=' ')
+                    print(f"⚠ Network error (retry {retry_count}/{max_retries})...", end=' ', flush=True)
                     # Get rate limit for backoff calculation
                     rate_limit_ms = exchange.rateLimit if exchange.rateLimit else 50
                     rate_limit_seconds = rate_limit_ms / 1000
-                    time.sleep(rate_limit_seconds * 5 * retry_count)  # Exponential backoff based on rate limit
+                    wait_time = rate_limit_seconds * 5 * retry_count
+                    print(f"[DEBUG] Waiting {wait_time:.2f} seconds before retry...", flush=True)
+                    time.sleep(wait_time)
                 else:
                     print(f"✗ Failed after {max_retries} retries: {e}")
                     raise
             except Exception as e:
+                elapsed = time.time() - start_time if start_time else 0
+                print(f"\n[DEBUG] Unexpected error after {elapsed:.2f} seconds: {type(e).__name__}: {str(e)[:100]}")
                 print(f"✗ Error: {e}")
+                import traceback
+                traceback.print_exc()
+                raise
+            except KeyboardInterrupt:
+                print(f"\n[DEBUG] Interrupted by user during market loading")
                 raise
         
         if not markets:
             print("✗ Failed to load markets")
             return False
         
+        print(f"[DEBUG] Markets loaded successfully, proceeding to database setup...")
+        print(f"[DEBUG] Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
         # Create database for this exchange
         db_name = exchange_id.upper()
-        create_database_if_not_exists(creds, db_name)
+        print(f"[DEBUG] Creating/checking database '{db_name}'...")
+        db_start = time.time()
+        try:
+            create_database_if_not_exists(creds, db_name)
+            db_elapsed = time.time() - db_start
+            print(f"[DEBUG] Database setup completed in {db_elapsed:.2f} seconds")
+        except Exception as e:
+            db_elapsed = time.time() - db_start
+            print(f"[DEBUG] Database setup failed after {db_elapsed:.2f} seconds: {e}")
+            raise
         
         # Get connection to exchange database
-        print(f"\n[INFO] Connecting to MySQL database '{db_name}'...", end=' ')
+        print(f"\n[INFO] Connecting to MySQL database '{db_name}'...", end=' ', flush=True)
+        print(f"[DEBUG] Starting database connection at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        conn_start = time.time()
         try:
             connection = get_database_connection(creds, db_name)
+            conn_elapsed = time.time() - conn_start
+            print(f"[DEBUG] get_database_connection() returned after {conn_elapsed:.2f} seconds")
             if connection.is_connected():
                 print(f"✓ Connected")
                 db_info = connection.server_info
                 print(f"[INFO] MySQL Server Version: {db_info}")
+                print(f"[DEBUG] Database connection verified, total time: {conn_elapsed:.2f} seconds")
             else:
                 print(f"✗ Connection failed")
                 return False
         except Error as e:
+            conn_elapsed = time.time() - conn_start
+            print(f"\n[DEBUG] MySQL Error after {conn_elapsed:.2f} seconds: {type(e).__name__}: {str(e)[:200]}")
             print(f"✗ Connection error: {e}")
             return False
         except Exception as e:
+            conn_elapsed = time.time() - conn_start
+            print(f"\n[DEBUG] Unexpected error after {conn_elapsed:.2f} seconds: {type(e).__name__}: {str(e)[:200]}")
             print(f"✗ Unexpected error: {e}")
+            import traceback
+            traceback.print_exc()
             return False
         
+        print(f"[DEBUG] Starting market categorization...")
+        cat_start = time.time()
         # Categorize markets
         spot_markets = [(s, m) for s, m in markets.items() 
                        if m.get('type') == 'spot' and m.get('active', True)]
@@ -998,20 +1169,26 @@ def process_exchange(exchange_id, creds, checkpoint):
         options_markets = [(s, m) for s, m in markets.items() 
                           if m.get('type') == 'option' and m.get('active', True)]
         
+        cat_elapsed = time.time() - cat_start
         print(f"\nMarkets to process:")
         print(f"  - Spot: {len(spot_markets)}")
         print(f"  - Futures/Perpetuals: {len(futures_markets)}")
         print(f"  - Options: {len(options_markets)}")
+        print(f"[DEBUG] Market categorization completed in {cat_elapsed:.2f} seconds")
         
+        print(f"[DEBUG] Getting available timeframes...")
+        tf_start = time.time()
         # Get available timeframes - only specific ones we want
         all_timeframes = list(exchange.timeframes.keys()) if hasattr(exchange, 'timeframes') and exchange.timeframes else []
         desired_timeframes = ['1s', '1m', '3m', '1h', '4h', '8h', '1d']
         timeframes = [tf for tf in desired_timeframes if tf in all_timeframes]
+        tf_elapsed = time.time() - tf_start
         
         print(f"\nAvailable timeframes: {len(all_timeframes)} total")
         print(f"  All: {', '.join(sorted(all_timeframes))}")
         print(f"Selected timeframes: {len(timeframes)}")
         print(f"  {', '.join(sorted(timeframes))}")
+        print(f"[DEBUG] Timeframe processing completed in {tf_elapsed:.2f} seconds")
         
         if not timeframes:
             print("  ⚠ No desired timeframes available, skipping exchange")
@@ -1037,6 +1214,11 @@ def process_exchange(exchange_id, creds, checkpoint):
             for symbol, market_info in market_list:
                 # Process each timeframe for this instrument
                 for timeframe in sorted(timeframes):
+                    # For 1s timeframe, only process if symbol is in volume.txt
+                    if timeframe == '1s':
+                        if symbol not in volume_coins:
+                            continue  # Skip 1s timeframe for symbols not in volume.txt
+                    
                     # Check if already completed for this timeframe
                     instrument_key = f"{market_type}_{symbol}_{timeframe}"
                     if instrument_key in completed_instruments:
@@ -1162,15 +1344,15 @@ def process_exchange(exchange_id, creds, checkpoint):
                         else:
                             print(f"    ⚠ No new data")
                         
-                        # Minimal rate limiting between timeframes (based on exchange rate limit)
-                        time.sleep(rate_limit_seconds)
+                        # Minimal rate limiting between timeframes (based on exchange rate limit with 25% buffer)
+                        time.sleep(rate_limit_seconds * 1.25)
                         
                     except Exception as e:
                         print(f"    ✗ Error: {e}")
                         continue
                 
-                # Minimal rate limiting between instruments (based on exchange rate limit)
-                time.sleep(rate_limit_seconds)
+                # Minimal rate limiting between instruments (based on exchange rate limit with 25% buffer)
+                time.sleep(rate_limit_seconds * 1.25)
         
         # Mark exchange as completed
         if exchange_id not in checkpoint.get('completed_exchanges', []):
